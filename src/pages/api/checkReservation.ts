@@ -1,8 +1,7 @@
-// pages/api/checkReservation.js
 
 import { PrismaClient } from '@prisma/client';
 
-export default async function handler(req, res) {
+export default async function handler(req: { method: string; body: { reservationDate: any; reservationTime: any; area: any; tableNumber: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { reservationExists?: boolean; error?: string; message?: unknown; }): void; new(): any; }; }; }) {
   if (req.method === 'POST') {
     const prisma = new PrismaClient();
 

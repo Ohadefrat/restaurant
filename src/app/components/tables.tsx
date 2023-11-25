@@ -27,9 +27,9 @@ const RestaurantLayout: React.FC<RestaurantLayoutProps> = ({ area, handleTableCl
             let tableBackgroundColor = 'green'; // Default color
 
             const tableReservations = reservations.filter(
-                (reservation) => reservation.tableNumber === i.toString() && reservation.area === area
+                (reservation: { tableNumber: string; area: string; }) => reservation?.tableNumber === i.toString() && reservation?.area === area
               );
-                          const reservedHours = tableReservations.map((reservation) => reservation.reservationTime);
+                          const reservedHours = tableReservations.map((reservation: { reservationTime: any; }) => reservation?.reservationTime);
       
             // Check if all allowed hours for the table are reserved
             const allHoursReserved = allowedHours.every((hour) => reservedHours.includes(hour));

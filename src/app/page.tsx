@@ -68,10 +68,10 @@ export default function Home() {
   const handleFullNameChange = (event: { target: { value: SetStateAction<string>; }; }) => {
     setFullName(event.target.value); // Update the 'fullName' state with input value
   };
-  const handleDateChange = (event) => {
+  const handleDateChange = (event: { target: { value: SetStateAction<string>; }; }) => {
     setSelectedDate(event.target.value); // Update the 'selectedDate' state with input value
   };
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
 
     // Check if the reservation already exists in the database
@@ -144,7 +144,7 @@ export default function Home() {
 
     setReservationExistsAlert(false);
   };
-  function formatDate(inputDate) {
+  function formatDate(inputDate: string | number | Date) {
     const date = new Date(inputDate); // Parse the input date string
     const day = date.getDate().toString().padStart(2, '0'); // Get day with leading zero if needed
     const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get month with leading zero if needed
@@ -152,7 +152,7 @@ export default function Home() {
 
     return `${day}/${month}/${year}`; // Return formatted date in DD/MM/YYYY format
   }
-  const isHourTaken = (tableNumber, hour) => {
+  const isHourTaken = (tableNumber: number, hour: string) => {
     const tableNum = tableNumber.toString();
 
     // Filter reservations for a specific table
