@@ -1,113 +1,496 @@
-import Image from 'next/image'
+'use client'
+
+import { Alert, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, List, ListItem, ListItemText, MenuItem, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { SetStateAction, useEffect, useRef, useState } from 'react';
+import Footer from './components/Footer';
+import Navbar from './components/navbar';
+import RestaurantLayout from './components/tables';
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const step = 0.0550;
+  const [selectedTable, setSelectedTable] = useState<number>(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedArea, setSelectedArea] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+  const [numberOfPeople, setNumberOfPeople] = useState('2');
+  const [fullName, setFullName] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reservations, setReservations] = useState<Reservation[]>([]); // Specify Reservation[] as the state type
+  const [reservationExistsAlert, setReservationExistsAlert] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<any>(null);
+
+  interface Reservation {
+    reservationDate: string; // Adjust the types according to your data structure
+    reservationTime: string;
+    area: string;
+    tableNumber: string;
+    // Add other properties if present in your data
+  }
+  const generateTimeSlots = () => {
+    const hours = ['18', '19', '20', '21', '22']; // Specify allowed hours
+    const intervals = ['00', '30']; // Specify intervals
+    const timeSlots = [];
+
+    for (const hour of hours) {
+      for (const interval of intervals) {
+        timeSlots.push(`${hour}:${interval}`);
+      }
+    }
+
+    return timeSlots;
+  };
+  const allowedHours = generateTimeSlots();
+
+  const handleNumberOfPeopleChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setNumberOfPeople(event.target.value);
+    // Add additional logic or validation as needed
+  };
+
+  const handleTimeChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setSelectedTime(event.target.value);
+    // Add additional logic or validation as needed
+  };
+  const handleTableClick = (tableNumber: number, area: string) => {
+    setSelectedTable(tableNumber);
+    setSelectedArea(area);
+
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedTable(-1);
+  };
+  const handleFullNameChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setFullName(event.target.value); // Update the 'fullName' state with input value
+  };
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value); // Update the 'selectedDate' state with input value
+  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Check if the reservation already exists in the database
+    const response = await fetch('/api/checkReservation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reservationDate: new Date(selectedDate),
+        reservationTime: selectedTime,
+        area: selectedArea,
+        tableNumber: selectedTable.toString()
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.reservationExists) {
+        // Handle case where the reservation already exists
+        console.log('Reservation already exists');
+        setReservationExistsAlert(true);
+
+        return;
+      }
+    } else {
+      console.error('Error checking reservation:', response.statusText);
+      // Handle error checking reservation
+      return;
+    }
+
+    // Continue with creating the reservation if it doesn't exist
+
+    try {
+      const createResponse = await fetch('/api/createReservation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: fullName,
+          reservationDate: new Date(selectedDate),
+          reservationTime: selectedTime,
+          numberOfPeople: parseInt(numberOfPeople),
+          area: selectedArea,
+          tableNumber: `${selectedTable}`
+        }),
+      });
+
+      if (createResponse.ok) {
+        const createData = await createResponse.json();
+        // Handle success
+      } else {
+        console.error('Error creating reservation:', createResponse.statusText);
+        // Handle error creating reservation
+      }
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+      // Handle error creating reservation
+    }
+
+    // Reset the form fields and close the modal
+    setNumberOfPeople("2");
+    setSelectedTime('');
+    setFullName('');
+    setSelectedDate(new Date().toISOString().split('T')[0]);
+    handleCloseModal();
+  };
+  const handleAlertClose = () => {
+
+    setReservationExistsAlert(false);
+  };
+  function formatDate(inputDate) {
+    const date = new Date(inputDate); // Parse the input date string
+    const day = date.getDate().toString().padStart(2, '0'); // Get day with leading zero if needed
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get month with leading zero if needed
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`; // Return formatted date in DD/MM/YYYY format
+  }
+  const isHourTaken = (tableNumber, hour) => {
+    const tableNum = tableNumber.toString();
+
+    // Filter reservations for a specific table
+    const reservationsForTable = reservations.filter((reservation) => reservation.tableNumber === tableNum && reservation.area ===selectedArea );
+    
+
+    // Get reservation times for the table
+    const reservationTimes = reservationsForTable.map((reservation) => reservation.reservationTime);
+    
+    // Check if the given hour is included in the reservation times for the table
+    return reservationTimes.includes(hour);
+  };
+  const handleRowClick = async () => {
+    // Access reservation properties here
+    console.log('Clicked reservation:', selectedReservation);
+    const response = await fetch('/api/deleteReservation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: selectedReservation?.id,
+
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.reservationExists) {
+        // Handle case where the reservation already exists
+
+      }
+    } else {
+      console.error('Error checking reservation:', response.statusText);
+    }
+            setOpenDeleteModal(false);
+  };
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setSelectedReservation(null);
+  };
+
+  const handleOpenDeleteModal = (reservation:any) => {
+    setSelectedReservation(reservation);
+    setOpenDeleteModal(true);
+    
+  };
+  useEffect(() => {
+    const fetchReservations = async () => {
+      try {
+        // Check if the reservation already exists in the database
+        const response = await fetch('/api/getReservations', {
+          method: 'POST', // Assuming you want to send data in the body
+          headers: {
+            'Content-Type': 'application/json',
+          },
+
+        });
+
+        if (response.ok) {
+
+          const data = await response.json(); // Ensure TypeScript understands the data as Reservation[]
+          setReservations(data.Reservations);
+
+        } else {
+          console.error('Failed to fetch reservations:', response.statusText);
+          // Handle the error case here
+        }
+      } catch (error) {
+        console.error('Error fetching reservations:', error);
+        // Handle exceptions that might occur during the fetch
+      }
+    };
+
+    fetchReservations();
+  }, [reservations]);
+
+  const tableIndices = [1, 3, 5, 7];
+  const areas = ['Area One', 'Area Two', 'Area Three', 'Area Four'];
+  const renderTables = () => {
+    const gridLayout = [];
+    for (let i = 0; i < 9; i++) {
+
+      if (tableIndices.includes(i)) {
+
+        const areaIndex = tableIndices.indexOf(i);
+        const areaTitle = areas[areaIndex];
+
+
+        gridLayout.push(
+          <Grid item xs={4} key={i}>
+            <RestaurantLayout
+              area={areaTitle}
+              handleTableClick={(tableNumber: number, area: string) => handleTableClick(tableNumber, area)}
+              reservations={reservations}
             />
-          </a>
-        </div>
+          </Grid>
+        );
+      } else if (i === 0) {
+        gridLayout.push(
+          <Grid item xs={12} sm={6} md={4} key={i}>
+            <Container maxWidth="md">
+              <Box
+                padding={2}
+                width="100%"
+                height="100%"
+                border={1}
+                borderColor="white"
+                borderRadius={5}
+                style={{ backgroundColor: '#00000090' }}
+              >
+                <Typography variant="h5" gutterBottom>
+                  Reservations List
+                </Typography>
+                {reservations.length > 0 ? (
+                  <TableContainer className={`hide-scrollbar`} style={{ maxHeight: '300px' }}>
+                    <Table
+                    
+                    >
+                      <TableHead style={{ position: 'sticky', top: 0, backgroundColor: '#333' }}>
+                        <TableRow>
+                          <TableCell className='text-white'>Date</TableCell>
+                          <TableCell className='text-white'>Time</TableCell>
+                          <TableCell className='text-white'>Area</TableCell>
+                          <TableCell className='text-white'>Table Number</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody style={{ overflowY: 'auto' }} >
+                        {reservations.map((reservation, index) => (
+                          <TableRow key={index} style={{ backgroundColor: index % 2 === 0 ? '#f0f0f0' : 'white' }}
+                          onClick={(row) => {handleOpenDeleteModal(reservation)}
+                          }>
+                            <TableCell>{formatDate(reservation.reservationDate)}</TableCell>
+                            <TableCell>{reservation.reservationTime}</TableCell>
+                            <TableCell>{reservation.area}</TableCell>
+                            <TableCell>{reservation.tableNumber}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography variant="body1">No reservations found</Typography>
+                )}
+                          <Dialog open={openDeleteModal} onClose={handleCloseDeleteModal}>
+        <DialogTitle>Delete Reservation</DialogTitle>
+        <DialogContent>
+          <p>Are you sure you want to delete this reservation?</p>
+          {/* Display reservation details in the modal */}
+          {selectedReservation && (
+            <div>
+              <p>Date: {selectedReservation.reservationDate}</p>
+              {/* Display other reservation details... */}
+            </div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteModal}>Cancel</Button>
+          <Button onClick={handleRowClick} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
+              </Box>
+            </Container>
+          </Grid>
+
+        )
+      } else if (i === 4) {
+        gridLayout.push(
+          <Grid item xs={12} sm={6} md={4} key={i}>
+            <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+              <Box
+                alignItems="center"
+                justifyContent="center"
+                width="100%"
+                height="100%"
+                display="flex"
+                border={1}
+                borderColor="white"
+                borderRadius={5}>
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <Button variant="contained" color="primary" style={{ width: '200px', marginBottom: '10px', backgroundColor: "#00000095" }}>
+                    Order a Table
+                  </Button>
+                  <Button variant="contained" color="secondary" style={{ width: '200px', backgroundColor: "#00000095" }}>
+                    Cancel Table
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+        );
+      }
+
+
+      else {
+        gridLayout.push(
+          <Grid item xs={4} key={i}>
+            <Box display="flex" alignItems="center" justifyContent="center">
+            </Box>
+          </Grid>
+        );
+      }
+    }
+    return gridLayout;
+  };
+
+  return (
+    <div className="video-background">
+      <video
+        ref={videoRef}
+        muted
+        autoPlay
+        loop
+        className="video-bg"
+        src="/restaurant-loop2.mp4" // Update the source with your video path
+      />
+      <div className="gradient-overlay">
+
+        <Box minHeight="100vh" display="flex" flexDirection="column" >
+          <Navbar />
+
+          <Box sx={{ flex: '1 1 auto', overflowY: 'auto' }} flexDirection="column">
+            <Grid container item spacing={2} >
+              {renderTables()}
+            </Grid>
+          </Box>
+          <Footer />
+
+          <Modal open={modalOpen} onClose={handleCloseModal}>
+            <Box
+              border={1}
+              borderColor="white"
+              borderRadius={5}
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                bgcolor: '#000000',
+                border: '2px solid #000',
+                boxShadow: 24,
+                p: 4,
+                width: 400,
+                textAlign: 'center',
+              }}
+            >
+
+              <Typography variant="h5" gutterBottom>
+                Table {selectedTable} - {selectedArea}
+              </Typography>
+
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  label="Full Name"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  style={{ backgroundColor: '#FFF', border: '2px solid #FFF', borderRadius: 8, }}
+                  value={fullName} // Assign value from state
+                  onChange={handleFullNameChange} // Handle changes to update the state
+                // Add state or ref for managing the full name input value
+                />
+                <TextField
+                  type="date"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  style={{ backgroundColor: '#FFF', border: '2px solid #FFF', borderRadius: 8, }}
+                  defaultValue={new Date().toISOString().split('T')[0]}
+                  value={selectedDate} // Assign value from state
+                  onChange={handleDateChange} // Handle changes to update the state
+                  InputLabelProps={{
+                    shrink: true, // Ensure the label floats when a value is set
+                  }}
+                // Add state or ref for managing the date input value
+                />
+                <TextField
+                  select
+                  label="Select Time"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  value={selectedTime}
+                  onChange={handleTimeChange}
+                  style={{
+                    backgroundColor: '#FFF',
+                    border: '2px solid #FFF',
+                    borderRadius: 8,
+                    textAlign: "left"
+                  }}
+                >
+                  {allowedHours.map((hour) => (
+                    <MenuItem key={hour} value={hour} disabled={isHourTaken(selectedTable,hour)}>
+                      {hour}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  label="Number of People"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  value={numberOfPeople}
+                  onChange={handleNumberOfPeopleChange}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    min: 2, // Minimum value allowed
+                    max: 8, // Maximum value allowed
+                    step: 1, // Increment value by 1
+                  }}
+                  style={{
+                    backgroundColor: '#FFF',
+                    border: '2px solid #FFF',
+                    borderRadius: 8,
+                  }}
+                />
+                <Button variant="contained" color="primary" style={{ color: "white", margin: 10, border: '2px solid #FFF', borderRadius: 8, }} type="submit">
+                  Submit
+                </Button>
+                <Button variant="contained" color="primary" style={{ color: "white", margin: 10, border: '2px solid #FFF', borderRadius: 8, }} onClick={handleCloseModal}>
+                  Close
+                </Button>
+
+              </form>
+              {reservationExistsAlert && (
+        <Alert severity="warning" onClose={handleAlertClose} sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 9999 }}>
+          Reservation already exists!
+        </Alert>
+      )}
+            </Box>
+          </Modal>
+
+        </Box>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   )
 }
