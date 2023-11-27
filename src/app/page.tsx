@@ -14,6 +14,8 @@ export default function Home() {
   const step = 0.0550;
   const [selectedTable, setSelectedTable] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState(false);
+  const [newModalOpen, setNewModalOpen] = useState(false);
+
   const [selectedArea, setSelectedArea] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [numberOfPeople, setNumberOfPeople] = useState('2');
@@ -66,10 +68,18 @@ export default function Home() {
 
   const handleCloseModal = () => {
     setModalOpen(false);
+    setNewModalOpen(false)
     setSelectedTable(-1);
   };
   const handleFullNameChange = (event: { target: { value: SetStateAction<string>; }; }) => {
     setFullName(event.target.value); // Update the 'fullName' state with input value
+  };
+
+  const handleTableChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setSelectedTable(event.target.value); // Update the 'fullName' state with input value
+  };
+  const handleAreaChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setSelectedArea(event.target.value); // Update the 'fullName' state with input value
   };
   const handleDateChange = (event: { target: { value: SetStateAction<string>; }; }) => {
     setSelectedDate(event.target.value); // Update the 'selectedDate' state with input value
@@ -353,20 +363,22 @@ export default function Home() {
                 borderColor="white"
                 borderRadius={5}>
                 <Box display="flex" flexDirection="column" alignItems="center">
-                  <Button variant="contained" color="primary" style={{ width: '200px', marginBottom: '10px', backgroundColor: "#00000095" }}>
+                  <Button variant="contained" color="primary" onClick={() => {
+                    setNewModalOpen(true)
+                    setModalOpen(true)
+                  }} style={{ width: '200px', marginBottom: '10px', backgroundColor: "#00000095" }}>
                     Order a Table
                   </Button>
                   <Button variant="contained" color="secondary" style={{ width: '200px', backgroundColor: "#00000095" }}>
                     Cancel Table
                   </Button>
                 </Box>
+
               </Box>
             </Box>
           </Grid>
         );
       }
-
-
       else {
         gridLayout.push(
           <Grid item xs={4} key={i}>
@@ -419,12 +431,43 @@ export default function Home() {
                 textAlign: 'center',
               }}
             >
-
-              <Typography variant="h5" gutterBottom>
-                Table {selectedTable} - {selectedArea}
-              </Typography>
-
               <form onSubmit={handleSubmit}>
+                {newModalOpen ? (
+                  <><TextField
+                    label="Table"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    style={{ backgroundColor: '#FFF', border: '2px solid #FFF', borderRadius: 8, }}
+                    value={selectedTable} // Assign value from state
+                    onChange={handleTableChange} // Handle changes to update the state
+                  />
+                    <TextField
+                      select
+                      label="Area" variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      value={selectedArea} // Assign value from state
+                      onChange={handleAreaChange} // Handle changes to update the state
+                      style={{
+                        backgroundColor: '#FFF',
+                        border: '2px solid #FFF',
+                        borderRadius: 8,
+                        textAlign: "left"
+                      }}
+                    >
+                      {areas.map((area) => (
+                        <MenuItem key={area} value={area}>
+                          {area}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+
+                  </>
+                ) : (<Typography variant="h5" gutterBottom>
+                  Table {selectedTable} - {selectedArea}
+                </Typography>)}
+
                 <TextField
                   label="Full Name"
                   variant="outlined"
