@@ -78,8 +78,10 @@ export default function Home() {
     setFullName(event.target.value); // Update the 'fullName' state with input value
   };
 
-  const handleTableChange = (event: { target: { value: SetStateAction<number>; }; }) => {
-    setSelectedTable(parseInt(event.target.value));
+  const handleTableChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const newValue: number = parseInt(event.target.value, 10); // Parse the input value as a number
+
+    setSelectedTable(newValue);
   };
   const handleAreaChange = (event: { target: { value: SetStateAction<string>; }; }) => {
     setSelectedArea(event.target.value);
