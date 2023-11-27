@@ -1,7 +1,7 @@
 'use client'
 
 import { Alert, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemText, MenuItem, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
-import { SetStateAction, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, SetStateAction, useEffect, useRef, useState } from 'react';
 import Footer from './components/Footer';
 import Navbar from './components/navbar';
 import RestaurantLayout from './components/tables';
@@ -72,7 +72,8 @@ export default function Home() {
   const handleCloseModal = () => {
     setModalOpen(false);
     setNewModalOpen(false)
-    setSelectedTable(-1);
+    setSelectedArea('Area One')
+    setSelectedTable(1);
   };
   const handleFullNameChange = (event: { target: { value: SetStateAction<string>; }; }) => {
     setFullName(event.target.value); // Update the 'fullName' state with input value
@@ -547,6 +548,8 @@ export default function Home() {
                     label="Table"
                     variant="outlined"
                     fullWidth
+                    type="number" // Set input type as number
+
                     margin="normal"
                     style={{ backgroundColor: '#FFF', border: '2px solid #FFF', borderRadius: 8, }}
                     value={selectedTable} // Assign value from state
