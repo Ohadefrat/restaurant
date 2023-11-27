@@ -291,7 +291,7 @@ export default function Home() {
     ),
   }));
 
-  const getRowClassName = (params: { id: number; }) => {
+  const getRowClassName = (params) => {
 
     return (params.id % 2 === 0) ? 'evenRow' : 'oddRow';
   };
