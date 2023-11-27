@@ -268,7 +268,7 @@ export default function Home() {
       filterable: false,
       width: 100,
       renderCell: (params: { row: { id: string | number; }; }) => (
-        <IconButton onClick={() => handleOpenDeleteModal(reservations[params.row.id])}>
+        <IconButton onClick={() => handleOpenDeleteModal(reservations[params.row.id as number])}>
           <DeleteIcon />
         </IconButton>
       ),
