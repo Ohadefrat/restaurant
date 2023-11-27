@@ -5,7 +5,7 @@ import { ChangeEvent, SetStateAction, useEffect, useRef, useState } from 'react'
 import Footer from './components/Footer';
 import Navbar from './components/navbar';
 import RestaurantLayout from './components/tables';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridRowParams } from '@mui/x-data-grid';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -291,9 +291,9 @@ export default function Home() {
     ),
   }));
 
-  const getRowClassName = (params) => {
+  const getRowClassName = (params: GridRowParams) => {
 
-    return (params.id % 2 === 0) ? 'evenRow' : 'oddRow';
+    return (params.id as number % 2 === 0) ? 'evenRow' : 'oddRow';
   };
   const tableIndices = [1, 3, 5, 7];
   const areas = ['Area One', 'Area Two', 'Area Three', 'Area Four'];
