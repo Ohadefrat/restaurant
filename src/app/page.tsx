@@ -267,7 +267,7 @@ export default function Home() {
       sortable: false,
       filterable: false,
       width: 100,
-      renderCell: (params) => (
+      renderCell: (params: { row: { id: string | number; }; }) => (
         <IconButton onClick={() => handleOpenDeleteModal(reservations[params.row.id])}>
           <DeleteIcon />
         </IconButton>
@@ -291,7 +291,7 @@ export default function Home() {
     ),
   }));
 
-  const getRowClassName = (params) => {
+  const getRowClassName = (params: { id: number; }) => {
 
     return (params.id % 2 === 0) ? 'evenRow' : 'oddRow';
   };
