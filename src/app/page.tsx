@@ -347,7 +347,7 @@ export default function Home() {
                       rows={rows}
                       columns={columns}
                       rowHeight={40} // Adjust row height if needed
-                      onRowClick={(row) => handleOpenDeleteModal(reservations[row.id])}
+                      //onRowClick={(row) => handleOpenDeleteModal(reservations[row.id])}
                       getRowClassName={getRowClassName}
 
                     />
