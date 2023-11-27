@@ -1,11 +1,13 @@
 'use client'
 
-import { Alert, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, List, ListItem, ListItemText, MenuItem, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemText, MenuItem, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { SetStateAction, useEffect, useRef, useState } from 'react';
 import Footer from './components/Footer';
 import Navbar from './components/navbar';
 import RestaurantLayout from './components/tables';
 import { DataGrid } from '@mui/x-data-grid';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -15,6 +17,7 @@ export default function Home() {
   const [selectedTable, setSelectedTable] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [newModalOpen, setNewModalOpen] = useState(false);
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
 
   const [selectedArea, setSelectedArea] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -75,11 +78,11 @@ export default function Home() {
     setFullName(event.target.value); // Update the 'fullName' state with input value
   };
 
-  const handleTableChange = (event: { target: { value: SetStateAction<string>; }; }) => {
-    setSelectedTable(event.target.value); // Update the 'fullName' state with input value
+  const handleTableChange = (event: { target: { value: SetStateAction<number>; }; }) => {
+    setSelectedTable(parseInt(event.target.value));
   };
   const handleAreaChange = (event: { target: { value: SetStateAction<string>; }; }) => {
-    setSelectedArea(event.target.value); // Update the 'fullName' state with input value
+    setSelectedArea(event.target.value);
   };
   const handleDateChange = (event: { target: { value: SetStateAction<string>; }; }) => {
     setSelectedDate(event.target.value); // Update the 'selectedDate' state with input value
@@ -207,6 +210,10 @@ export default function Home() {
     setOpenDeleteModal(false);
     setSelectedReservation(null);
   };
+  const handleCloseDeleteOrderModal = () => {
+    setModalDeleteOpen(false);
+    setSelectedReservation(null);
+  };
 
   const handleOpenDeleteModal = (reservation: any) => {
     setSelectedReservation(reservation);
@@ -251,6 +258,18 @@ export default function Home() {
     { field: 'area', headerName: 'Area', width: 100 }, // Adjust width as needed
     { field: 'tableNumber', headerName: 'Table Number', width: 100 }, // Adjust width as needed
     { field: 'numberOfPeople', headerName: 'Number of People', width: 150 }, // Adjust width as needed
+    {
+      field: 'deleteIcon',
+      headerName: 'Actions',
+      sortable: false,
+      filterable: false,
+      width: 100,
+      renderCell: (params) => (
+        <IconButton onClick={() => handleOpenDeleteModal(reservations[params.row.id])}>
+          <DeleteIcon />
+        </IconButton>
+      ),
+    },
   ];
 
   const rows = reservations.map((reservation, index) => ({
@@ -261,6 +280,12 @@ export default function Home() {
     area: reservation.area,
     tableNumber: reservation.tableNumber,
     numberOfPeople: reservation.numberOfPeople,
+    deleteIcon: (
+      <DeleteIcon
+        onClick={() => handleOpenDeleteModal(reservation)} // Call your delete modal handler
+        style={{ cursor: 'pointer', color: 'red' }} // Adjust styles as needed
+      />
+    ),
   }));
 
   const getRowClassName = (params) => {
@@ -369,10 +394,93 @@ export default function Home() {
                   }} style={{ width: '200px', marginBottom: '10px', backgroundColor: "#00000095" }}>
                     Order a Table
                   </Button>
-                  <Button variant="contained" color="secondary" style={{ width: '200px', backgroundColor: "#00000095" }}>
+                  <Button variant="contained" color="secondary" style={{ width: '200px', backgroundColor: "#00000095" }}
+                    onClick={() => {
+                      setModalDeleteOpen(true)
+                    }}>
                     Cancel Table
                   </Button>
                 </Box>
+                <Modal open={modalDeleteOpen} onClose={handleCloseModal}>
+                  <Box
+
+                    border={1}
+                    borderColor="white"
+                    borderRadius={5}
+                    sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      bgcolor: '#000000',
+                      border: '2px solid #000',
+                      boxShadow: 24,
+                      p: 4,
+                      width: 1000,
+                      height: 600,
+                      textAlign: 'center',
+                    }}
+                  >
+                    <IconButton onClick={handleCloseDeleteOrderModal} color="inherit" sx={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      bgcolor: 'rgba(0, 0, 0, 0.5)',
+                      '&:hover': {
+                        bgcolor: 'rgba(0, 0, 0, 0.7)',
+                      },
+                    }}>
+                      <CloseIcon />
+                    </IconButton>
+                    <Container maxWidth="md">
+                      <Box
+                        padding={2}
+                        border={1}
+                        borderColor="white"
+                        borderRadius={5}
+                        style={{ backgroundColor: '#00000090' }}
+                      >
+                        <Typography variant="h5" gutterBottom>
+                          My Reservations
+                        </Typography>
+
+                        {reservations.length > 0 ? (
+                          <div style={{ height: 450, width: '100%' }}>
+                            <DataGrid
+                              className='bg-white'
+                              rows={rows}
+                              columns={columns}
+                              rowHeight={40} // Adjust row height if needed
+                              //onRowClick={(row) => handleOpenDeleteModal(reservations[row.id])}
+                              getRowClassName={getRowClassName}
+
+                            />
+                          </div>
+
+                        ) : (
+                          <Typography variant="body1">No reservations found</Typography>
+                        )}
+                        <Dialog open={openDeleteModal} onClose={handleCloseDeleteModal}>
+                          <DialogTitle>Delete Reservation</DialogTitle>
+                          <DialogContent>
+                            <p>Are you sure you want to delete this reservation?</p>
+                            {/* Display reservation details in the modal */}
+                            {selectedReservation && (
+                              <div>
+                                <p>Date: {selectedReservation.reservationDate}</p>
+                                {/* Display other reservation details... */}
+                              </div>
+                            )}
+                          </DialogContent>
+                          <DialogActions>
+                            <Button onClick={handleCloseDeleteModal}>Cancel</Button>
+                            <Button onClick={handleRowClick} color="error">Delete</Button>
+                          </DialogActions>
+                        </Dialog>
+                      </Box>
+                    </Container>
+                  </Box>
+                </Modal>
 
               </Box>
             </Box>
