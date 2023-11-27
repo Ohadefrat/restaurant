@@ -88,3 +88,15 @@ body {
     display: none;
   }
 }
+
+
+.evenRow {
+  background-color: #d0d0d0; /* Your desired even row color */
+  color:black
+}
+
+.oddRow {
+  background-color: white; /* Your desired odd row color */
+  color:black
+
+}

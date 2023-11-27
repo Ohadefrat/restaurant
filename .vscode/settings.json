@@ -39,5 +39,8 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "javascript.validate.enable": false,
-  "editor.codeActionsOnSaveTimeout": 15000
+  "editor.codeActionsOnSaveTimeout": 15000,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }

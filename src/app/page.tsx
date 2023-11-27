@@ -5,6 +5,7 @@ import { SetStateAction, useEffect, useRef, useState } from 'react';
 import Footer from './components/Footer';
 import Navbar from './components/navbar';
 import RestaurantLayout from './components/tables';
+import { DataGrid } from '@mui/x-data-grid';
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -28,6 +29,8 @@ export default function Home() {
     reservationTime: string;
     area: string;
     tableNumber: string;
+    numberOfPeople: number;
+    fullName: string
     // Add other properties if present in your data
   }
   const generateTimeSlots = () => {
@@ -156,12 +159,12 @@ export default function Home() {
     const tableNum = tableNumber.toString();
 
     // Filter reservations for a specific table
-    const reservationsForTable = reservations.filter((reservation) => reservation.tableNumber === tableNum && reservation.area ===selectedArea );
-    
+    const reservationsForTable = reservations.filter((reservation) => reservation.tableNumber === tableNum && reservation.area === selectedArea);
+
 
     // Get reservation times for the table
     const reservationTimes = reservationsForTable.map((reservation) => reservation.reservationTime);
-    
+
     // Check if the given hour is included in the reservation times for the table
     return reservationTimes.includes(hour);
   };
@@ -188,17 +191,17 @@ export default function Home() {
     } else {
       console.error('Error checking reservation:', response.statusText);
     }
-            setOpenDeleteModal(false);
+    setOpenDeleteModal(false);
   };
   const handleCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setSelectedReservation(null);
   };
 
-  const handleOpenDeleteModal = (reservation:any) => {
+  const handleOpenDeleteModal = (reservation: any) => {
     setSelectedReservation(reservation);
     setOpenDeleteModal(true);
-    
+
   };
   useEffect(() => {
     const fetchReservations = async () => {
@@ -230,6 +233,30 @@ export default function Home() {
     fetchReservations();
   }, [reservations]);
 
+
+  const columns = [
+    { field: 'fullName', headerName: 'Name', width: 100 }, // Adjust width as needed
+    { field: 'reservationDate', headerName: 'Date', width: 100 }, // Adjust width as needed
+    { field: 'reservationTime', headerName: 'Time', width: 100 }, // Adjust width as needed
+    { field: 'area', headerName: 'Area', width: 100 }, // Adjust width as needed
+    { field: 'tableNumber', headerName: 'Table Number', width: 100 }, // Adjust width as needed
+    { field: 'numberOfPeople', headerName: 'Number of People', width: 150 }, // Adjust width as needed
+  ];
+
+  const rows = reservations.map((reservation, index) => ({
+    id: index,
+    fullName: reservation.fullName,
+    reservationDate: formatDate(reservation.reservationDate),
+    reservationTime: reservation.reservationTime,
+    area: reservation.area,
+    tableNumber: reservation.tableNumber,
+    numberOfPeople: reservation.numberOfPeople,
+  }));
+
+  const getRowClassName = (params) => {
+
+    return (params.id % 2 === 0) ? 'evenRow' : 'oddRow';
+  };
   const tableIndices = [1, 3, 5, 7];
   const areas = ['Area One', 'Area Two', 'Area Three', 'Area Four'];
   const renderTables = () => {
@@ -243,77 +270,71 @@ export default function Home() {
 
 
         gridLayout.push(
-          <Grid item xs={4} key={i}>
-            <RestaurantLayout
-              area={areaTitle}
-              handleTableClick={(tableNumber: number, area: string) => handleTableClick(tableNumber, area)}
-              reservations={reservations}
-            />
+          <Grid item xs={12} sm={4} md={4} key={i}>
+            <Container maxWidth="sm">
+              <Box
+                padding={2}
+                border={1}
+                borderColor="white"
+                borderRadius={5}
+                style={{ backgroundColor: '#00000090' }}
+              >
+                <RestaurantLayout
+                  area={areaTitle}
+                  handleTableClick={(tableNumber: number, area: string) => handleTableClick(tableNumber, area)}
+                  reservations={reservations}
+                />
+              </Box>
+            </Container>
           </Grid>
         );
       } else if (i === 0) {
         gridLayout.push(
-          <Grid item xs={12} sm={6} md={4} key={i}>
+          <Grid item xs={12} sm={4} md={4} key={i}>
             <Container maxWidth="md">
               <Box
                 padding={2}
-                width="100%"
-                height="100%"
                 border={1}
                 borderColor="white"
                 borderRadius={5}
                 style={{ backgroundColor: '#00000090' }}
               >
                 <Typography variant="h5" gutterBottom>
-                  Reservations List
+                  My Reservations
                 </Typography>
                 {reservations.length > 0 ? (
-                  <TableContainer className={`hide-scrollbar`} style={{ maxHeight: '300px' }}>
-                    <Table
-                    
-                    >
-                      <TableHead style={{ position: 'sticky', top: 0, backgroundColor: '#333' }}>
-                        <TableRow>
-                          <TableCell className='text-white'>Date</TableCell>
-                          <TableCell className='text-white'>Time</TableCell>
-                          <TableCell className='text-white'>Area</TableCell>
-                          <TableCell className='text-white'>Table Number</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody style={{ overflowY: 'auto' }} >
-                        {reservations.map((reservation, index) => (
-                          <TableRow key={index} style={{ backgroundColor: index % 2 === 0 ? '#f0f0f0' : 'white' }}
-                          onClick={(row) => {handleOpenDeleteModal(reservation)}
-                          }>
-                            <TableCell>{formatDate(reservation.reservationDate)}</TableCell>
-                            <TableCell>{reservation.reservationTime}</TableCell>
-                            <TableCell>{reservation.area}</TableCell>
-                            <TableCell>{reservation.tableNumber}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <div style={{ height: 250, width: '100%' }}>
+                    <DataGrid
+                      className='bg-white'
+                      rows={rows}
+                      columns={columns}
+                      rowHeight={40} // Adjust row height if needed
+                      onRowClick={(row) => handleOpenDeleteModal(reservations[row.id])}
+                      getRowClassName={getRowClassName}
+
+                    />
+                  </div>
+
                 ) : (
                   <Typography variant="body1">No reservations found</Typography>
                 )}
-                          <Dialog open={openDeleteModal} onClose={handleCloseDeleteModal}>
-        <DialogTitle>Delete Reservation</DialogTitle>
-        <DialogContent>
-          <p>Are you sure you want to delete this reservation?</p>
-          {/* Display reservation details in the modal */}
-          {selectedReservation && (
-            <div>
-              <p>Date: {selectedReservation.reservationDate}</p>
-              {/* Display other reservation details... */}
-            </div>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeleteModal}>Cancel</Button>
-          <Button onClick={handleRowClick} color="error">Delete</Button>
-        </DialogActions>
-      </Dialog>
+                <Dialog open={openDeleteModal} onClose={handleCloseDeleteModal}>
+                  <DialogTitle>Delete Reservation</DialogTitle>
+                  <DialogContent>
+                    <p>Are you sure you want to delete this reservation?</p>
+                    {/* Display reservation details in the modal */}
+                    {selectedReservation && (
+                      <div>
+                        <p>Date: {selectedReservation.reservationDate}</p>
+                        {/* Display other reservation details... */}
+                      </div>
+                    )}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseDeleteModal}>Cancel</Button>
+                    <Button onClick={handleRowClick} color="error">Delete</Button>
+                  </DialogActions>
+                </Dialog>
               </Box>
             </Container>
           </Grid>
@@ -321,13 +342,12 @@ export default function Home() {
         )
       } else if (i === 4) {
         gridLayout.push(
-          <Grid item xs={12} sm={6} md={4} key={i}>
+          <Grid item xs={12} sm={4} md={4} key={i}>
             <Box display="flex" alignItems="center" justifyContent="center" height="100%">
               <Box
                 alignItems="center"
                 justifyContent="center"
-                width="100%"
-                height="100%"
+
                 display="flex"
                 border={1}
                 borderColor="white"
@@ -375,7 +395,7 @@ export default function Home() {
           <Navbar />
 
           <Box sx={{ flex: '1 1 auto', overflowY: 'auto' }} flexDirection="column">
-            <Grid container item spacing={2} >
+            <Grid container item xs={12} spacing={2} >
               {renderTables()}
             </Grid>
           </Box>
@@ -445,7 +465,7 @@ export default function Home() {
                   }}
                 >
                   {allowedHours.map((hour) => (
-                    <MenuItem key={hour} value={hour} disabled={isHourTaken(selectedTable,hour)}>
+                    <MenuItem key={hour} value={hour} disabled={isHourTaken(selectedTable, hour)}>
                       {hour}
                     </MenuItem>
                   ))}
@@ -481,10 +501,10 @@ export default function Home() {
 
               </form>
               {reservationExistsAlert && (
-        <Alert severity="warning" onClose={handleAlertClose} sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 9999 }}>
-          Reservation already exists!
-        </Alert>
-      )}
+                <Alert severity="warning" onClose={handleAlertClose} sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 9999 }}>
+                  Reservation already exists!
+                </Alert>
+              )}
             </Box>
           </Modal>
 
