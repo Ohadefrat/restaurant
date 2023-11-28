@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { SetStateAction, useState } from 'react';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import { FaBars } from 'react-icons/fa'; // Import the LinkedIn icon
 
 
 const UserMenu = () => {
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null); // Specify the type for anchorEl
 
-    const handleClick = (event) => {
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
 

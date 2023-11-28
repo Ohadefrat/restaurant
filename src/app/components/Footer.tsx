@@ -1,25 +1,108 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Grid, Link, Typography, useTheme } from '@mui/material';
 import { Raleway } from 'next/font/google';
-const raleway = Raleway({ subsets: ['latin'], weight: [] })
+import { FaFacebook, FaTwitter, FaInstagram, FaGithub, FaInfo } from 'react-icons/fa';
+
+const raleway = Raleway({ subsets: ['latin'], weight: [] });
+
 const Footer = () => {
+  const theme = useTheme();
+
   return (
     <Box
       component="footer"
       sx={{
-        backgroundColor: '#00000030',
+        backgroundColor: '#000000',
         color: '#fff',
-        py: 3, // Adjust padding as needed
-        textAlign: 'center',
-        bottom: 0, // Align to the bottom
-        left: 0, // Align to the left
-        width: '100%', // Take full width of the viewport
-        fontFamily: raleway.style
+        py: 3,
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        fontFamily: raleway.style,
+        padding: theme.spacing(4),
+        marginTop: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
       }}
     >
-      <Typography variant="body2" sx={{ fontFamily: raleway.style }} >
-        This is a sample footer. Replace this text with your footer content.
+      <Grid
+        container
+        justifyContent="center" // Align the items horizontally at the center
+        sx={{ width: '100%' }} // Adjust height as needed
+      >
+        <Grid item xs={12} sm={4} className={'mb-6'}>
+          <Typography variant="h6" align="center">Services</Typography>
+          <Box sx={{ flexGrow: 1 }}>
+            <Grid container direction="column" spacing={2}
+              justifyContent="center"
+              alignItems="center"
+            >
+              {/* Your items in a row */}
+              <Grid item xs={1}>
+                <Link href="https://github.com/Ohadefrat/restaurant" target="_blank" rel="noopener noreferrer">
+                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Link
+                      href="https://github.com/Ohadefrat/restaurant"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <FaGithub size={24} style={{ color: '#FFF' }} />
+                      <Typography variant="subtitle2" align="center" className='ml-2'>Github repository</Typography>
+                    </Link>
+                  </Box>
+
+                </Link>
+              </Grid>
+              <Grid item xs={1}>
+                <Link href="/About" target="_blank" rel="noopener noreferrer">
+                  <Box sx={{ display: 'flex', justifyContent: 'center', color: 'orange' }}>
+                    <Link
+                      href="/About"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <FaInfo size={12} />
+                      <Typography variant="subtitle2" align="center" className='ml-1'>About</Typography>
+                    </Link>
+                  </Box>
+
+                </Link>
+              </Grid>         </Grid>
+
+          </Box>
+        </Grid>
+        <Grid item xs={12} sm={4} md={4} className={'mb-6'}>
+          <Typography variant="h6" align="center">Follow Us</Typography>
+          <Box sx={{ flexGrow: 1, marginTop: '1%' }}>
+            <Grid container direction="row" spacing={2}
+              justifyContent="center"
+              alignItems="center"
+            >
+              {/* Your items in a row */}
+              <Grid item xs={1}>
+                <Link href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+                  <FaFacebook size={24} style={{ color: '#3b5998' }} />
+                </Link>          </Grid>
+              <Grid item xs={1}>
+                <Link href="https://twitter.com/" target="_blank" rel="noopener noreferrer">
+                  <FaTwitter size={24} style={{ color: '#1DA1F2' }} />
+                </Link>          </Grid>
+              <Grid item xs={1}>
+                <Link href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+                  <FaInstagram size={24} style={{ color: '#c32aa3' }} />
+                </Link>          </Grid>
+            </Grid>
+          </Box>
+
+        </Grid >
+      </Grid >
+      <Typography variant="body2" align="center" >
+        &copy; {new Date().getFullYear()} Ohad Efrat. All Rights Reserved.
       </Typography>
-    </Box>
+    </Box >
   );
 };
 
