@@ -527,7 +527,7 @@ export default function Home() {
         <Box minHeight="100vh" display="flex" flexDirection="column" >
           <Navbar />
 
-          <Box sx={{ flex: '1 1 auto', overflowY: 'auto' }} flexDirection="column">
+          <Box sx={{ flex: '1 1 auto', overflowY: 'auto', marginTop: '1%', marginBottom: '1%' }} flexDirection="column">
             <Grid container item xs={12} spacing={2} >
               {renderTables()}
             </Grid>

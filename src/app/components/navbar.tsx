@@ -1,10 +1,24 @@
+import { Button, Menu, MenuItem } from '@mui/material';
 import { Raleway } from 'next/font/google';
 import Link from 'next/link';
-import { FaFilePdf, FaGithub, FaLinkedin } from 'react-icons/fa'; // Import the LinkedIn icon
+import { useState } from 'react';
+import { FaBars, FaGithub } from 'react-icons/fa'; // Import the LinkedIn icon
+import UserMenu from './UserMenu';
 const raleway = Raleway({ subsets: ['latin'], weight: [] })
 const Navbar = () => {
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   return (
-    <nav className="flex justify-between items-center p-4 bg-gray-200 dark:bg-zinc-800/30 text-white" style={{ backgroundColor: '#00000030' }}>
+    <nav className="flex justify-between items-center p-4 bg-gray-200 dark:bg-zinc-800/30 text-white" style={{ backgroundColor: '#000' }}>
       <div className="flex items-center">
         <Link href="/" passHref>
           <span title="logo" className="cursor-pointer">
@@ -13,19 +27,10 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex items-center space-x-4">
-        <Link href="/about" passHref>
-          <span title="about" className="cursor-pointer">
-            About
-          </span>
-        </Link>
-        <Link href="/contact" passHref>
-          <span title="contact" className="cursor-pointer">
-            Contact
-          </span>
-        </Link>
-
-
-
+        <a href="https://github.com/Ohadefrat/restaurant" target="_blank" rel="noopener noreferrer" className="cursor-pointer text-fuchsia-600">
+          <FaGithub size={20} />
+        </a>
+        <UserMenu />
       </div>
     </nav>
   );
