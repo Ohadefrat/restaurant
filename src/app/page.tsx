@@ -1,6 +1,6 @@
 'use client'
 
-import { Alert, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemText, MenuItem, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemText, MenuItem, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useTheme } from '@mui/material';
 import { ChangeEvent, SetStateAction, useEffect, useRef, useState } from 'react';
 import Footer from './components/Footer';
 import Navbar from './components/navbar';
@@ -10,6 +10,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Home() {
+
+  const theme = useTheme();
+
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -419,7 +423,13 @@ export default function Home() {
                       border: '2px solid #000',
                       boxShadow: 24,
                       p: 4,
-                      width: 1000,
+                      width: '50%', // Default width for larger screens
+                      [theme.breakpoints.down('sm')]: {
+                        width: '90%', // Adjust for smaller screens (e.g., smartphones)
+                      },
+                      [theme.breakpoints.between('sm', 'md')]: {
+                        width: '80%', // Adjust for medium-sized screens (e.g., tablets)
+                      },
                       height: 600,
                       textAlign: 'center',
                     }}
@@ -539,6 +549,13 @@ export default function Home() {
                 boxShadow: 24,
                 p: 4,
                 width: 400,
+
+                [theme.breakpoints.down('sm')]: {
+                  width: '90%', // Adjust for smaller screens (e.g., smartphones)
+                },
+                [theme.breakpoints.between('sm', 'md')]: {
+                  width: '50%', // Adjust for medium-sized screens (e.g., tablets)
+                },
                 textAlign: 'center',
               }}
             >
