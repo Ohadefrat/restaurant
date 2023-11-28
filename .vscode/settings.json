@@ -25,9 +25,7 @@
   "eslint.format.enable": true,
   "eslint.packageManager": "yarn",
   "npm.packageManager": "yarn",
-  "cSpell.words": [
-    "Customizer"
-  ],
+  "cSpell.words": ["Customizer"],
   "search-node-modules.path": "node_modules",
   "markdown.extension.toc.updateOnSave": false,
   "[prisma]": {

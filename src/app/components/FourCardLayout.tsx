@@ -1,5 +1,5 @@
-'use client'
-import { Grid, Card, CardContent, Typography } from '@mui/material';
+"use client";
+import { Grid, Card, CardContent, Typography } from "@mui/material";
 
 const FourCardLayout = () => {
   return (
@@ -13,7 +13,7 @@ const FourCardLayout = () => {
           </CardContent>
         </Card>
       </Grid>
-      
+
       {/* Second card */}
       <Grid item xs={12} sm={6} md={3}>
         <Card>
