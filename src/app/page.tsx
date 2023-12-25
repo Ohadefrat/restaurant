@@ -695,7 +695,7 @@ export default function Home() {
                   }}
                   value={fullName} // Assign value from state
                   onChange={handleFullNameChange} // Handle changes to update the state
-                  // Add state or ref for managing the full name input value
+                // Add state or ref for managing the full name input value
                 />
                 <TextField
                   type="date"
@@ -713,7 +713,7 @@ export default function Home() {
                   InputLabelProps={{
                     shrink: true, // Ensure the label floats when a value is set
                   }}
-                  // Add state or ref for managing the date input value
+                // Add state or ref for managing the date input value
                 />
                 <TextField
                   select
