@@ -67,18 +67,31 @@ const RestaurantLayout: React.FC<RestaurantLayoutProps> = ({
               borderRadius={5}
               display="flex"
               alignItems="center"
-              justifyContent="center"
+              justifyContent="space-around"
               color="white"
               onClick={() => handleTableClick(i, area)}
               style={{ backgroundColor: tableBackgroundColor }} // Set the background color dynamically
               sx={{
                 [theme.breakpoints.down("sm")]: {
-                  width: "30%", // Adjust for smaller screens (e.g., smartphones)
+                  width: "100%", // Adjust for smaller screens (e.g., smartphones)
                   height: "30px", // Adjust for smaller screens (e.g., smartphones)
+                  fontSize: "12px",
+                  whiteSpace: 'nowrap'
                 },
                 [theme.breakpoints.between("sm", "md")]: {
-                  width: "50%", // Adjust for medium-sized screens (e.g., tablets)
-                  height: "50px", // Adjust for medium-sized screens (e.g., tablets)
+                  width: "120%", // Adjust for medium-sized screens (e.g., tablets)
+                  height: "40px", // Adjust for medium-sized screens (e.g., tablets)
+                  fontSize: "10px",
+                  whiteSpace: 'nowrap'
+
+                },
+                [theme.breakpoints.between("md", "lg")]: {
+                  width: "120%", // Adjust for medium-sized screens (e.g., tablets)
+                  height: "40px", // Adjust for medium-sized screens (e.g., tablets)
+                  fontSize: "12px",
+
+                  whiteSpace: 'nowrap'
+
                 },
                 [theme.breakpoints.up("lg")]: {
                   width: "100%", // Adjust for larger screens (e.g., laptops, desktops)
@@ -100,24 +113,38 @@ const RestaurantLayout: React.FC<RestaurantLayoutProps> = ({
               height={100}
               alignItems="center"
               justifyContent="center"
+              color="white"
               sx={{
                 [theme.breakpoints.down("sm")]: {
-                  width: "30%", // Adjust for smaller screens (e.g., smartphones)
+                  width: "100%", // Adjust for smaller screens (e.g., smartphones)
                   height: "30px", // Adjust for smaller screens (e.g., smartphones)
+                  whiteSpace: 'nowrap', // Prevents text from wrapping
+
+
                 },
                 [theme.breakpoints.between("sm", "md")]: {
-                  width: "50%", // Adjust for medium-sized screens (e.g., tablets)
-                  height: "50px", // Adjust for medium-sized screens (e.g., tablets)
+                  width: "120%", // Adjust for medium-sized screens (e.g., tablets)
+                  height: "40px", // Adjust for medium-sized screens (e.g., tablets)
+                  textAlign: "center",
+                  justifyContent: "center"
+
+                },
+                [theme.breakpoints.between("md", "lg")]: {
+                  width: "120%", // Adjust for medium-sized screens (e.g., tablets)
+                  height: "40px", // Adjust for medium-sized screens (e.g., tablets)
+                  textAlign: "center",
+                  justifyContent: "center"
+
                 },
                 [theme.breakpoints.up("lg")]: {
                   width: "100%", // Adjust for larger screens (e.g., laptops, desktops)
                   height: "100px", // Adjust for larger screens (e.g., laptops, desktops)
+                  textAlign: "center",
+                  justifyContent: "center"
                 },
               }}
             >
-              <Typography variant="body2" textAlign="center" color="white">
-                {area}
-              </Typography>
+              {area}
             </Box>
           </Grid>,
         );
